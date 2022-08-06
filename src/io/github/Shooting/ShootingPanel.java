@@ -7,7 +7,8 @@ import javax.swing.JPanel;
 
 
 public class ShootingPanel extends JPanel {
-    // コンポーネントが描画されるときに呼び出される
+    
+    // バッファリング描画
     public BufferedImage image;
 
     // 描画は自作するので継承
@@ -16,10 +17,11 @@ public class ShootingPanel extends JPanel {
         this.image = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
     }
 
-    @Override
+    @Override 
     public void paint(Graphics g) {
 
         super.paint(g);
+        // 描画した結果を表示する
         g.drawImage(image, 0, 0, this);
     }
 

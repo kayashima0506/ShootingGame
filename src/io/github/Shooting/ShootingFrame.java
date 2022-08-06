@@ -15,12 +15,15 @@ public class ShootingFrame extends JFrame {
         // ウィンドウに追加
         this.add(panel);
 
+        // ウィンドウを閉じたときにfalseにする
         this.addWindowListener(new WindowAdapter(){
             public void windowClosed(WindowEvent e){
                 super.windowClosed(e);
-                Shooting.loop = true;
+                Shooting.loop = false;
             }
         });
+
+        this.addKeyListener(new Keyboard());
 
         // ウィンドウをクローズしたときの処理（EXIT_ON_CLOSE：終了）
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

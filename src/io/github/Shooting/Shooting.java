@@ -32,6 +32,8 @@ public class Shooting {
         int playerY = 0;
         int bulletInterval = 0;
         int score = 0;
+        int level = 0;
+        long levelTimer = 0;
         ArrayList<Bullet> bullets_player = new ArrayList<>();
         ArrayList<Bullet> bullets_enemy = new ArrayList<>();
         ArrayList<Enemy> enemies = new ArrayList<>();
@@ -75,15 +77,23 @@ public class Shooting {
                     if (Keyboard.isKeyPressed(KeyEvent.VK_SPACE)) {
                         screen = EnumShootingScreen.GAME;
                         bullets_player = new ArrayList<>();
+                        bullets_enemy = new ArrayList<>();
                         enemies = new ArrayList<>();
                         playerX = 235;
                         playerY = 430;
+                        score = 0;
+                        level = 0;
                     }
 
                     break;
 
 
                 case GAME:
+                    if (System.currentTimeMillis() - levelTimer > 1 * 1000) {
+                        levelTimer = System.currentTimeMillis();
+                        level++;
+                    }
+
                     // プレイヤーを描画
                     gra.setColor(Color.BLUE);
                     gra.fillRect(playerX + 10, playerY, 10, 10);
@@ -126,11 +136,19 @@ public class Shooting {
                             enemies.remove(i);
                         }
                         // 敵がランダムに弾を発射する
-                        if (random.nextInt(80) == 1) {
+                        if (random.nextInt(level < 50 ? 80 - level : 30) == 1) {
                             bullets_enemy.add(new Bullet(enemy.x, enemy.y));
                         }
+                        // 敵に当たって死んだとき
+                        if ((enemy.x >= playerX && enemy.x <= playerX + 30 && enemy.y >= playerY
+                                && enemy.y <= playerY + 20)
+                                || (enemy.x + 30 >= playerX && enemy.x + 30 <= playerX + 30 && enemy.y + 20 >= playerY
+                                        && enemy.y + 20 <= playerY + 20)) {
+                            screen = EnumShootingScreen.GAME_OVER;
+                            score += (level - 1) * 100;
+                        }
                     }
-                    if (random.nextInt(30) == 1) {
+                    if (random.nextInt(level < 10 ? 30 - level : 30) == 1) {
                         enemies.add(new Enemy(random.nextInt(470), 0));
                     }
 
@@ -143,6 +161,13 @@ public class Shooting {
                         if (bullet.y > 500) {
                             bullets_enemy.remove(i);
                             i--;
+                        }
+
+                        // 敵の弾で死んだとき
+                        if (bullet.x >= playerX && bullet.x <= playerX + 30 && bullet.y >= playerY
+                                && bullet.y <= playerY + 20) {
+                            screen = EnumShootingScreen.GAME_OVER;
+                            score += (level - 1) * 100;
                         }
                     }
 
@@ -161,12 +186,37 @@ public class Shooting {
                     if (bulletInterval > 0) {
                         bulletInterval--;
                     }
+
+                    // スコアとレベルを描画
+                    gra.setColor(Color.BLACK);
+                    font = new Font("SansSerif", Font.PLAIN, 20);
+                    metrics = gra.getFontMetrics(font);
+                    gra.setFont(font);
+                    gra.drawString("SCORE:" + score, 480 - metrics.stringWidth("SCORE:" + score), 430);
+                    gra.drawString("LEVEL:" + level, 480 - metrics.stringWidth("LEVEL:" + level), 450);
                         
                     break;
 
                 case GAME_OVER:
-                    break;
+                    gra.setColor(Color.BLACK);
+                    // 中央に表示させるため変数に代入し、FontMetricsを使う
+                    font = new Font("SansSerif", Font.PLAIN, 50);
+                    gra.setFont(font);
+                    metrics = gra.getFontMetrics(font);
+                    gra.drawString("GAME OVER", 250 - (metrics.stringWidth("GAME OVER") / 2), 100);
 
+                    font = new Font("SansSerif", Font.PLAIN, 20);
+                    gra.setFont(font);
+                    metrics = gra.getFontMetrics(font);
+                    gra.drawString("Score:" + score, 250 - (metrics.stringWidth("Score:" + score) / 2), 150);
+                    gra.drawString("Level:" + level, 250 - (metrics.stringWidth("Level:" + level) / 2), 170);
+                    gra.drawString("Press ESC to Return Start Screen", 250 - (metrics.stringWidth("Press ESC to Return Start Screen") / 2), 200);
+                    if (Keyboard.isKeyPressed(KeyEvent.VK_ESCAPE)) {
+                        screen = EnumShootingScreen.START;
+                    }
+                
+
+                    break;
             }
 
             // FPSを画面に描画する
@@ -188,7 +238,7 @@ public class Shooting {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            System.out.println(System.currentTimeMillis() - startTime);
+            // System.out.println(System.currentTimeMillis() - startTime);
         }
 
     }

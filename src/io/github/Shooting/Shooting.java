@@ -188,7 +188,7 @@ public class Shooting {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            // System.out.println(System.currentTimeMillis() - startTime);
+            System.out.println(System.currentTimeMillis() - startTime);
         }
 
     }

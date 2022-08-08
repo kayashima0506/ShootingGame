@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Shooting {
-    // ShootingFrameの変数を作成
+    // ShootingFrameクラスのフレームを生成
     public static ShootingFrame shootingFrame;
-    // 
     public static boolean loop;
 
     public static void main(String args[]) {
@@ -27,7 +26,7 @@ public class Shooting {
 
         EnumShootingScreen screen = EnumShootingScreen.START; // 列挙型なので代入するだけでいい
         
-        // ゲーム画面
+        // "GAME"の画面
         int playerX = 0;
         int playerY = 0;
         int bulletInterval = 0;
@@ -38,7 +37,6 @@ public class Shooting {
         ArrayList<Bullet> bullets_enemy = new ArrayList<>();
         ArrayList<Enemy> enemies = new ArrayList<>();
         Random random = new Random();
-
 
         while (loop) {
             // Unix時間が1000以上 == 1秒経過
@@ -55,9 +53,7 @@ public class Shooting {
             gra.setColor(Color.WHITE);
             gra.fillRect(0, 0, 500, 500);
 
-            // gra.setColor(Color.BLACK);
-            // gra.fillRect(100, 100, 100, 100);
-
+            // それぞれの画面
             switch (screen) {
                 case START:
                     gra.setColor(Color.BLACK);
@@ -73,7 +69,7 @@ public class Shooting {
                     metrics = gra.getFontMetrics(font);
                     gra.drawString("Press SPACE to Start", 250 - (metrics.stringWidth("Press SPACE to Start") / 2),
                             150);
-                    // 押されたら遷移する
+                    // 押されたら"GAME"に遷移＋初期化
                     if (Keyboard.isKeyPressed(KeyEvent.VK_SPACE)) {
                         screen = EnumShootingScreen.GAME;
                         bullets_player = new ArrayList<>();
@@ -87,9 +83,9 @@ public class Shooting {
 
                     break;
 
-
                 case GAME:
-                    if (System.currentTimeMillis() - levelTimer > 1 * 1000) {
+                    // 時間経過でレベルアップ
+                    if (System.currentTimeMillis() - levelTimer > 5 * 1000) {
                         levelTimer = System.currentTimeMillis();
                         level++;
                     }
@@ -123,10 +119,8 @@ public class Shooting {
                     }
                     // System.out.println(bullets_player.size());
 
-
                     // 弾の情報をループさせて表示する(敵)
                     gra.setColor(Color.RED);
-
                     for (int i = 0; i < enemies.size(); i++) {
                         Enemy enemy = enemies.get(i);
                         gra.fillRect(enemy.x, enemy.y, 30, 10);
@@ -136,8 +130,8 @@ public class Shooting {
                             enemies.remove(i);
                         }
                         // 敵がランダムに弾を発射する
-                        if (random.nextInt(level < 50 ? 80 - level : 30) == 1) {
-                            bullets_enemy.add(new Bullet(enemy.x, enemy.y));
+                        if (random.nextInt(level < 30 ? 40 - level : 10) == 1) {
+                            bullets_enemy.add(new Bullet(enemy.x + 12, enemy.y));
                         }
                         // 敵に当たって死んだとき
                         if ((enemy.x >= playerX && enemy.x <= playerX + 30 && enemy.y >= playerY
@@ -148,15 +142,15 @@ public class Shooting {
                             score += (level - 1) * 100;
                         }
                     }
-                    if (random.nextInt(level < 10 ? 30 - level : 30) == 1) {
+                    // 敵をランダムで出現させる
+                    if (random.nextInt(level < 20 ? 30 - level : 10) == 1) {
                         enemies.add(new Enemy(random.nextInt(470), 0));
                     }
 
                     for (int i = 0; i < bullets_enemy.size(); i++) {
                         Bullet bullet = bullets_enemy.get(i);
-                        // gra.setColor(Color.BLUE);
                         gra.fillRect(bullet.x, bullet.y, 5, 5);
-                        bullet.y += 10;
+                        bullet.y += 6;
                         // 弾が画面外にいったら消す
                         if (bullet.y > 500) {
                             bullets_enemy.remove(i);
@@ -172,20 +166,17 @@ public class Shooting {
                     }
 
                     // プレイヤーの移動&移動範囲の指定
-                    if (Keyboard.isKeyPressed(KeyEvent.VK_LEFT)&&playerX>0) playerX -= 10;
-                    if (Keyboard.isKeyPressed(KeyEvent.VK_RIGHT) && playerX < 455) playerX += 10;
-                    if (Keyboard.isKeyPressed(KeyEvent.VK_UP)&&playerY>100) playerY -= 10;
-                    if (Keyboard.isKeyPressed(KeyEvent.VK_DOWN) && playerY < 440) playerY += 10;
+                    if (Keyboard.isKeyPressed(KeyEvent.VK_LEFT) && playerX > 0) playerX -= 8;
+                    if (Keyboard.isKeyPressed(KeyEvent.VK_RIGHT) && playerX < 455) playerX += 8;
+                    if (Keyboard.isKeyPressed(KeyEvent.VK_UP) && playerY > 100) playerY -= 8;
+                    if (Keyboard.isKeyPressed(KeyEvent.VK_DOWN) && playerY < 440) playerY += 8;
 
-                    // 弾
+                    // 弾を撃つ、発射の間隔を指定
                     if (Keyboard.isKeyPressed(KeyEvent.VK_SPACE) && bulletInterval == 0) {
                         bullets_player.add(new Bullet(playerX + 12, playerY));
                         bulletInterval = 8;
                     }
-
-                    if (bulletInterval > 0) {
-                        bulletInterval--;
-                    }
+                    if (bulletInterval > 0) bulletInterval--;
 
                     // スコアとレベルを描画
                     gra.setColor(Color.BLACK);
@@ -227,6 +218,7 @@ public class Shooting {
             // バッファした結果を表示する
             shootingFrame.panel.draw();
 
+            // FPSを制限する
             try {
                 long runTime = System.currentTimeMillis() - startTime;
                 // 33ms以下かどうか
@@ -235,12 +227,9 @@ public class Shooting {
                     Thread.sleep((1000 / fps) - (runTime));
                 }
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             // System.out.println(System.currentTimeMillis() - startTime);
         }
-
     }
-    
 }

@@ -1,5 +1,8 @@
 package io.github.Shooting;
 
+/*
+ * 敵のX,Y座標を管理
+ */
 public class Enemy {
     public int x;
     public int y;

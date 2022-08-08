@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+/*
+ * Swingを使用してフレームを作成
+ */
 public class ShootingFrame extends JFrame {
 
     public ShootingPanel panel;
